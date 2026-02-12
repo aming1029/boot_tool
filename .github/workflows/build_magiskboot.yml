@@ -1,0 +1,38 @@
+name: 编译全版本 magiskboot
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 安装编译环境
+        run: sudo apt update && sudo apt install -y git build-essential mingw-w64 libz-mingw-w64-dev
+
+      - name: 编译所有面具 magiskboot
+        run: |
+          mkdir output && cd output
+          build() {
+              local name="$1"
+              local repo="$2"
+              local out="$3"
+              git clone --depth 1 $repo src
+              cd src
+              if [ -d native/src/magiskboot ]; then cd native/src/magiskboot; fi
+              x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o $out -lz -static
+              cp $out ../../../../
+              cd ../../..
+          }
+
+          build 官方 https://github.com/topjohnwu/Magisk                magiskboot_stable.exe
+          build Alpha https://github.com/HuskyDG/Magisk-alpha           magiskboot_alpha.exe
+          build Kitsune https://github.com/Dr-TSON/Kitsune-Mask         magiskboot_kitsune.exe
+          build FolkPatch https://github.com/FolkPatch/FolkPatch        magiskboot_folk.exe
+          build SKRoot https://github.com/secant001/SK-Root             magiskboot_sk.exe
+          build APatch https://github.com/bmaxdk/APatch                 magiskboot_apatch.exe
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: magiskboot_all
+          path: ./*.exe

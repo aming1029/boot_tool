@@ -16,11 +16,19 @@ jobs:
               local name="$1"
               local repo="$2"
               local out="$3"
-              git clone --depth 1 $repo src
+              git clone --depth 1 "$repo" src
               cd src
-              if [ -d native/src/magiskboot ]; then cd native/src/magiskboot; fi
-              x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o $out -lz -static
-              cp $out ../../../../
+              # 适配不同仓库的 magiskboot 路径
+              if [ -d native/src/magiskboot ]; then
+                cd native/src/magiskboot
+              elif [ -d src/magiskboot ]; then
+                cd src/magiskboot
+              elif [ -d magiskboot ]; then
+                cd magiskboot
+              fi
+              # 编译命令，增加 -lstdc++ 避免链接错误
+              x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o "$out" -lz -static -lstdc++
+              cp "$out" ../../../../
               cd ../../..
           }
 
@@ -29,10 +37,12 @@ jobs:
           build Kitsune https://github.com/Dr-TSON/Kitsune-Mask         magiskboot_kitsune.exe
           build FolkPatch https://github.com/FolkPatch/FolkPatch        magiskboot_folk.exe
           build SKRoot https://github.com/secant001/SK-Root             magiskboot_sk.exe
-          build APatch https://github.com/bmaxdk/APatch                 magiskboot_apatch.exe
+          build APatch https://github.com/bmax121/APatch               magiskboot_apatch.exe
 
       - name: 上传产物
         uses: actions/upload-artifact@v4
         with:
+          name: magiskboot_all
+          path: ./*.exe
           name: magiskboot_all
           path: ./*.exe

@@ -11,140 +11,62 @@ jobs:
           sudo apt update
           sudo apt install -y git build-essential mingw-w64 libz-mingw-w64-dev
 
-      - name: 编译 6 个版本 magiskboot.exe
+      - name: 编译官方 Magisk
         run: |
-          mkdir -p output
-          cd output
+          git clone --depth 1 https://github.com/topjohnwu/Magisk src
+          cd src/native/src/magiskboot
+          x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o magiskboot_stable.exe -lz -static
+          cp magiskboot_stable.exe ../../../../output/
+          cd ../../..
+          rm -rf src
 
-          build() {
-              local NAME="$1"
-              local REPO="$2"
-              local OUT="$3"
+      - name: 编译 Alpha
+        run: |
+          git clone --depth 1 https://github.com/HuskyDG/Magisk-alpha src
+          cd src/native/src/magiskboot
+          x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o magiskboot_alpha.exe -lz -static
+          cp magiskboot_alpha.exe ../../../../output/
+          cd ../../..
+          rm -rf src
 
-              git clone --depth 1 "$REPO" src
-              cd src
+      - name: 编译 Kitsune Mask
+        run: |
+          git clone --depth 1 https://github.com/Dr-TSON/Kitsune-Mask src
+          cd src/native/src/magiskboot
+          x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o magiskboot_kitsune.exe -lz -static
+          cp magiskboot_kitsune.exe ../../../../output/
+          cd ../../..
+          rm -rf src
 
-              if [ -d "native/src/magiskboot" ]; then
-                cd "native/src/magiskboot"
-              elif [ -d "src/magiskboot" ]; then
-                cd "src/magiskboot"
-              fi
+      - name: 编译 FolkPatch
+        run: |
+          git clone --depth 1 https://github.com/FolkPatch/FolkPatch src
+          cd src/native/src/magiskboot
+          x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o magiskboot_folk.exe -lz -static
+          cp magiskboot_folk.exe ../../../../output/
+          cd ../../..
+          rm -rf src
 
-              x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o "$OUT" -lz -static
+      - name: 编译 SK-Root
+        run: |
+          git clone --depth 1 https://github.com/secant001/SK-Root src
+          cd src/native/src/magiskboot
+          x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o magiskboot_sk.exe -lz -static
+          cp magiskboot_sk.exe ../../../../output/
+          cd ../../..
+          rm -rf src
 
-              cp "$OUT" ../../../output/
-              cd ../../..
-              rm -rf src
-          }
-
-          build "官方" "https://github.com/topjohnwu/Magisk" "magiskboot_stable.exe"
-          build "Alpha" "https://github.com/HuskyDG/Magisk-alpha" "magiskboot_alpha.exe"
-          build "Kitsune" "https://github.com/Dr-TSON/Kitsune-Mask" "magiskboot_kitsune.exe"
-          build "Folk" "https://github.com/FolkPatch/FolkPatch" "magiskboot_folk.exe"
-          build "SKRoot" "https://github.com/secant001/SK-Root" "magiskboot_sk.exe"
-          build "APatch" "https://github.com/bmax121/APatch" "magiskboot_apatch.exe"
-
-      - name: 上传编译好的exe
-        uses: actions/upload-artifact@v4
-        with:
-          name: magiskboot_all
-          path: output/*.exe
-              rm -rf src
-          }
-
-          build "官方" "https://github.com/topjohnwu/Magisk" "magiskboot_stable.exe"
-          build "Alpha" "https://github.com/HuskyDG/Magisk-alpha" "magiskboot_alpha.exe"
-          build "Kitsune" "https://github.com/Dr-TSON/Kitsune-Mask" "magiskboot_kitsune.exe"
-          build "Folk" "https://github.com/FolkPatch/FolkPatch" "magiskboot_folk.exe"
-          build "SKRoot" "https://github.com/secant001/SK-Root" "magiskboot_sk.exe"
-          build "APatch" "https://github.com/bmax121/APatch" "magiskboot_apatch.exe"
-
-      - name: 上传编译好的exe
-        uses: actions/upload-artifact@v4
-        with:
-          name: magiskboot_all
-          path: output/*.exe
-              cp "$OUT" ../../../output/
-              cd ../../..
-              rm -rf src
-          }
-
-          build "官方" "https://github.com/topjohnwu/Magisk" "magiskboot_stable.exe"
-          build "Alpha" "https://github.com/HuskyDG/Magisk-alpha" "magiskboot_alpha.exe"
-          build "Kitsune" "https://github.com/Dr-TSON/Kitsune-Mask" "magiskboot_kitsune.exe"
-          build "Folk" "https://github.com/FolkPatch/FolkPatch" "magiskboot_folk.exe"
-          build "SKRoot" "https://github.com/secant001/SK-Root" "magiskboot_sk.exe"
-          build "APatch" "https://github.com/bmax121/APatch" "magiskboot_apatch.exe"
+      - name: 编译 APatch
+        run: |
+          git clone --depth 1 https://github.com/bmax121/APatch src
+          cd src/native/src/magiskboot
+          x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o magiskboot_apatch.exe -lz -static
+          cp magiskboot_apatch.exe ../../../../output/
+          cd ../../..
+          rm -rf src
 
       - name: 上传编译好的exe
         uses: actions/upload-artifact@v4
         with:
           name: magiskboot_all
           path: output/*.exe
-
-          build 官方     https://github.com/topjohnwu/Magisk                magiskboot_stable.exe
-          build Alpha   https://github.com/HuskyDG/Magisk-alpha           magiskboot_alpha.exe
-          build Kitsune https://github.com/Dr-TSON/Kitsune-Mask         magiskboot_kitsune.exe
-          build Folk    https://github.com/FolkPatch/FolkPatch        magiskboot_folk.exe
-          build SKRoot  https://github.com/secant001/SK-Root             magiskboot_sk.exe
-          build APatch  https://github.com/bmax121/APatch               magiskboot_apatch.exe
-
-      - name: 上传编译好的exe
-        uses: actions/upload-artifact@v4
-        with:
-          name: magiskboot_all
-          path: output/*.exe
-              cd ../../..
-              rm -rf src
-          }
-
-          # 开始编译 6 个版本
-          build 官方 https://github.com/topjohnwu/Magisk                magiskboot_stable.exe
-          build Alpha https://github.com/HuskyDG/Magisk-alpha           magiskboot_alpha.exe
-          build Kitsune https://github.com/Dr-TSON/Kitsune-Mask         magiskboot_kitsune.exe
-          build FolkPatch https://github.com/FolkPatch/FolkPatch        magiskboot_folk.exe
-          build SKRoot https://github.com/secant001/SK-Root             magiskboot_sk.exe
-          build APatch https://github.com/bmax121/APatch               magiskboot_apatch.exe
-
-      - name: 打包全部exe
-        uses: actions/upload-artifact@v4
-        with:
-          name: magiskboot_all
-          path: ./*.exe
-              cd ../../..
-              rm -rf src
-          }
-
-          # 开始编译 6 个版本
-          build 官方 https://github.com/topjohnwu/Magisk                magiskboot_stable.exe
-          build Alpha https://github.com/HuskyDG/Magisk-alpha           magiskboot_alpha.exe
-          build Kitsune https://github.com/Dr-TSON/Kitsune-Mask         magiskboot_kitsune.exe
-          build FolkPatch https://github.com/FolkPatch/FolkPatch        magiskboot_folk.exe
-          build SKRoot https://github.com/secant001/SK-Root             magiskboot_sk.exe
-          build APatch https://github.com/bmax121/APatch               magiskboot_apatch.exe
-
-      - name: 打包全部exe
-        uses: actions/upload-artifact@v4
-        with:
-          name: magiskboot_all
-          path: ./*.exe
-          mv magiskboot.exe magiskboot_folk.exe
-          rm -f magiskboot_folk.zip
-
-          # 5. SK-Root (secant001, v26.1)
-          wget -O magiskboot_sk.zip https://github.com/secant001/SK-Root/releases/download/v26.1/magiskboot-x86_64-w64-mingw32.zip
-          unzip -q magiskboot_sk.zip
-          mv magiskboot.exe magiskboot_sk.exe
-          rm -f magiskboot_sk.zip
-
-          # 6. APatch (bmax121, v1.0.0)
-          wget -O magiskboot_apatch.zip https://github.com/bmax121/APatch/releases/download/v1.0.0/magiskboot-x86_64-w64-mingw32.zip
-          unzip -q magiskboot_apatch.zip
-          mv magiskboot.exe magiskboot_apatch.exe
-          rm -f magiskboot_apatch.zip
-
-      - name: 上传产物
-        uses: actions/upload-artifact@v4
-        with:
-          name: magiskboot_all
-          path: ./*.exe

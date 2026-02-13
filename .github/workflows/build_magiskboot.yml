@@ -9,7 +9,7 @@ jobs:
       - name: 安装编译环境
         run: |
           sudo apt update
-          sudo apt install -y git build-essential mingw-w64 libz-mingw64-dev
+          sudo apt install -y git build-essential mingw-w64 libz-mingw-w64-dev
 
       - name: 编译 6 个版本 magiskboot.exe
         run: |
@@ -24,8 +24,12 @@ jobs:
               git clone --depth 1 "$REPO" src
               cd src
 
-              # 统一进入 magiskboot 源码目录（兼容所有仓库）
-              cd native/src/magiskboot 2>/dev/null || cd src/magiskboot 2>/dev/null || true
+              # 兼容不同仓库的目录结构
+              if [ -d "native/src/magiskboot" ]; then
+                cd "native/src/magiskboot"
+              elif [ -d "src/magiskboot" ]; then
+                cd "src/magiskboot"
+              fi
 
               # 编译 Windows 64位 静态 exe
               x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o "$OUT" -lz -static
@@ -34,6 +38,19 @@ jobs:
               cd ../../..
               rm -rf src
           }
+
+          build "官方" "https://github.com/topjohnwu/Magisk" "magiskboot_stable.exe"
+          build "Alpha" "https://github.com/HuskyDG/Magisk-alpha" "magiskboot_alpha.exe"
+          build "Kitsune" "https://github.com/Dr-TSON/Kitsune-Mask" "magiskboot_kitsune.exe"
+          build "Folk" "https://github.com/FolkPatch/FolkPatch" "magiskboot_folk.exe"
+          build "SKRoot" "https://github.com/secant001/SK-Root" "magiskboot_sk.exe"
+          build "APatch" "https://github.com/bmax121/APatch" "magiskboot_apatch.exe"
+
+      - name: 上传编译好的exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: magiskboot_all
+          path: output/*.exe
 
           build 官方     https://github.com/topjohnwu/Magisk                magiskboot_stable.exe
           build Alpha   https://github.com/HuskyDG/Magisk-alpha           magiskboot_alpha.exe

@@ -51,6 +51,23 @@ jobs:
         with:
           name: magiskboot_all
           path: ./*.exe
+              cd ../../..
+              rm -rf src
+          }
+
+          # 开始编译 6 个版本
+          build 官方 https://github.com/topjohnwu/Magisk                magiskboot_stable.exe
+          build Alpha https://github.com/HuskyDG/Magisk-alpha           magiskboot_alpha.exe
+          build Kitsune https://github.com/Dr-TSON/Kitsune-Mask         magiskboot_kitsune.exe
+          build FolkPatch https://github.com/FolkPatch/FolkPatch        magiskboot_folk.exe
+          build SKRoot https://github.com/secant001/SK-Root             magiskboot_sk.exe
+          build APatch https://github.com/bmax121/APatch               magiskboot_apatch.exe
+
+      - name: 打包全部exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: magiskboot_all
+          path: ./*.exe
           mv magiskboot.exe magiskboot_folk.exe
           rm -f magiskboot_folk.zip
 

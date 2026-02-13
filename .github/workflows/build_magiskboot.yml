@@ -1,4 +1,4 @@
-name: 从 Magisk APK 提取 magiskboot
+name: 下载全版本 Windows magiskboot
 on:
   workflow_dispatch:
 
@@ -9,16 +9,45 @@ jobs:
       - name: 安装依赖
         run: sudo apt update && sudo apt install -y wget unzip
 
-      - name: 下载并提取 magiskboot
+      - name: 下载并解压所有版本
         run: |
           mkdir -p output && cd output
-          # 下载官方 Magisk APK
-          wget -O Magisk.apk https://github.com/topjohnwu/Magisk/releases/download/v27.0/Magisk-v27.0.apk
-          # 解压 APK
-          unzip -q Magisk.apk
-          # 提取 x86_64 架构的 magiskboot 并重命名
-          cp lib/x86_64/libmagiskboot.so magiskboot_stable.exe
-          chmod +x magiskboot_stable.exe
+
+          # 1. 官方 Magisk (v27.0)
+          wget -O magiskboot_stable.zip https://github.com/topjohnwu/Magisk/releases/download/v27.0/magiskboot-x86_64-w64-mingw32.zip
+          unzip -q magiskboot_stable.zip
+          mv magiskboot.exe magiskboot_stable.exe
+          rm -f magiskboot_stable.zip
+
+          # 2. Alpha (HuskyDG, v27.0-alpha)
+          wget -O magiskboot_alpha.zip https://github.com/HuskyDG/Magisk/releases/download/v27.0-alpha/magiskboot-x86_64-w64-mingw32.zip
+          unzip -q magiskboot_alpha.zip
+          mv magiskboot.exe magiskboot_alpha.exe
+          rm -f magiskboot_alpha.zip
+
+          # 3. Kitsune Mask (Dr-TSON, v26.1)
+          wget -O magiskboot_kitsune.zip https://github.com/Dr-TSON/Kitsune-Mask/releases/download/v26.1/magiskboot-x86_64-w64-mingw32.zip
+          unzip -q magiskboot_kitsune.zip
+          mv magiskboot.exe magiskboot_kitsune.exe
+          rm -f magiskboot_kitsune.zip
+
+          # 4. FolkPatch (FolkPatch, v26.1)
+          wget -O magiskboot_folk.zip https://github.com/FolkPatch/FolkPatch/releases/download/v26.1/magiskboot-x86_64-w64-mingw32.zip
+          unzip -q magiskboot_folk.zip
+          mv magiskboot.exe magiskboot_folk.exe
+          rm -f magiskboot_folk.zip
+
+          # 5. SK-Root (secant001, v26.1)
+          wget -O magiskboot_sk.zip https://github.com/secant001/SK-Root/releases/download/v26.1/magiskboot-x86_64-w64-mingw32.zip
+          unzip -q magiskboot_sk.zip
+          mv magiskboot.exe magiskboot_sk.exe
+          rm -f magiskboot_sk.zip
+
+          # 6. APatch (bmax121, v1.0.0)
+          wget -O magiskboot_apatch.zip https://github.com/bmax121/APatch/releases/download/v1.0.0/magiskboot-x86_64-w64-mingw32.zip
+          unzip -q magiskboot_apatch.zip
+          mv magiskboot.exe magiskboot_apatch.exe
+          rm -f magiskboot_apatch.zip
 
       - name: 上传产物
         uses: actions/upload-artifact@v4

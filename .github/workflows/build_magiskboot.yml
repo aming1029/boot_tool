@@ -1,4 +1,4 @@
-name: 下载全版本 Windows magiskboot
+name: 编译全版本 magiskboot for Windows
 on:
   workflow_dispatch:
 
@@ -6,34 +6,51 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: 安装依赖
-        run: sudo apt update && sudo apt install -y wget unzip
-
-      - name: 下载并解压所有版本
+      - name: 安装编译环境
         run: |
-          mkdir -p output && cd output
+          sudo apt update
+          sudo apt install -y git build-essential mingw-w64 libz-mingw-w64-dev
 
-          # 1. 官方 Magisk (v27.0)
-          wget -O magiskboot_stable.zip https://github.com/topjohnwu/Magisk/releases/download/v27.0/magiskboot-x86_64-w64-mingw32.zip
-          unzip -q magiskboot_stable.zip
-          mv magiskboot.exe magiskboot_stable.exe
-          rm -f magiskboot_stable.zip
+      - name: 编译 6 个版本 magiskboot.exe
+        run: |
+          mkdir output
+          cd output
 
-          # 2. Alpha (HuskyDG, v27.0-alpha)
-          wget -O magiskboot_alpha.zip https://github.com/HuskyDG/Magisk/releases/download/v27.0-alpha/magiskboot-x86_64-w64-mingw32.zip
-          unzip -q magiskboot_alpha.zip
-          mv magiskboot.exe magiskboot_alpha.exe
-          rm -f magiskboot_alpha.zip
+          build() {
+              local NAME="$1"
+              local REPO="$2"
+              local OUT="$3"
 
-          # 3. Kitsune Mask (Dr-TSON, v26.1)
-          wget -O magiskboot_kitsune.zip https://github.com/Dr-TSON/Kitsune-Mask/releases/download/v26.1/magiskboot-x86_64-w64-mingw32.zip
-          unzip -q magiskboot_kitsune.zip
-          mv magiskboot.exe magiskboot_kitsune.exe
-          rm -f magiskboot_kitsune.zip
+              git clone --depth 1 $REPO src
+              cd src
 
-          # 4. FolkPatch (FolkPatch, v26.1)
-          wget -O magiskboot_folk.zip https://github.com/FolkPatch/FolkPatch/releases/download/v26.1/magiskboot-x86_64-w64-mingw32.zip
-          unzip -q magiskboot_folk.zip
+              # 自动进入 magiskboot 目录
+              if [ -d native/src/magiskboot ]; then
+                cd native/src/magiskboot
+              fi
+
+              # 编译 Windows exe
+              x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o $OUT -lz -static
+
+              # 移动到输出目录
+              cp $OUT ../../../../
+              cd ../../..
+              rm -rf src
+          }
+
+          # 开始编译 6 个版本
+          build 官方 https://github.com/topjohnwu/Magisk                magiskboot_stable.exe
+          build Alpha https://github.com/HuskyDG/Magisk-alpha           magiskboot_alpha.exe
+          build Kitsune https://github.com/Dr-TSON/Kitsune-Mask         magiskboot_kitsune.exe
+          build FolkPatch https://github.com/FolkPatch/FolkPatch        magiskboot_folk.exe
+          build SKRoot https://github.com/secant001/SK-Root             magiskboot_sk.exe
+          build APatch https://github.com/bmax121/APatch               magiskboot_apatch.exe
+
+      - name: 打包全部exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: magiskboot_all
+          path: ./*.exe
           mv magiskboot.exe magiskboot_folk.exe
           rm -f magiskboot_folk.zip
 

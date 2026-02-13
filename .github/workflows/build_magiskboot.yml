@@ -132,6 +132,55 @@ jobs:
         with:
           name: magiskboot_all
           path: output/*.exe
+      - name: 编译 Kitsune Mask
+        run: |
+          git clone --depth 1 https://github.com/Dr-TSON/Kitsune-Mask src
+          cd src
+          MAGISKBOOT_DIR=$(find . -name "magiskboot.cpp" -type f | head -1 | xargs dirname)
+          cd "$MAGISKBOOT_DIR"
+          x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o magiskboot_kitsune.exe -lz -static
+          cp magiskboot_kitsune.exe ../../../output/
+          cd ../../..
+          rm -rf src
+
+      - name: 编译 FolkPatch
+        run: |
+          git clone --depth 1 https://github.com/FolkPatch/FolkPatch src
+          cd src
+          MAGISKBOOT_DIR=$(find . -name "magiskboot.cpp" -type f | head -1 | xargs dirname)
+          cd "$MAGISKBOOT_DIR"
+          x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o magiskboot_folk.exe -lz -static
+          cp magiskboot_folk.exe ../../../output/
+          cd ../../..
+          rm -rf src
+
+      - name: 编译 SK-Root
+        run: |
+          git clone --depth 1 https://github.com/secant001/SK-Root src
+          cd src
+          MAGISKBOOT_DIR=$(find . -name "magiskboot.cpp" -type f | head -1 | xargs dirname)
+          cd "$MAGISKBOOT_DIR"
+          x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o magiskboot_sk.exe -lz -static
+          cp magiskboot_sk.exe ../../../output/
+          cd ../../..
+          rm -rf src
+
+      - name: 编译 APatch
+        run: |
+          git clone --depth 1 https://github.com/bmax121/APatch src
+          cd src
+          MAGISKBOOT_DIR=$(find . -name "magiskboot.cpp" -type f | head -1 | xargs dirname)
+          cd "$MAGISKBOOT_DIR"
+          x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o magiskboot_apatch.exe -lz -static
+          cp magiskboot_apatch.exe ../../../output/
+          cd ../../..
+          rm -rf src
+
+      - name: 上传编译好的exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: magiskboot_all
+          path: output/*.exe
           cp magiskboot_kitsune.exe ../../../../output/
           cd ../../..
           rm -rf src

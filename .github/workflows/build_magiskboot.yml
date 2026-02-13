@@ -11,10 +11,26 @@ jobs:
 
       - name: 编译官方 Magisk magiskboot
         run: |
+          set -e  # 遇到错误立即停止
           mkdir -p output && cd output
+          
+          # 克隆仓库
           git clone --depth 1 https://github.com/topjohnwu/Magisk src
-          cd src/native/src/magiskboot
+          cd src
+          
+          # 自动查找 magiskboot 目录
+          MAGISKBOOT_DIR=$(find . -name "magiskboot" -type d | head -1)
+          if [ -z "$MAGISKBOOT_DIR" ]; then
+            echo "❌ 未找到 magiskboot 目录"
+            exit 1
+          fi
+          echo "✅ 找到 magiskboot 目录: $MAGISKBOOT_DIR"
+          cd "$MAGISKBOOT_DIR"
+          
+          # 编译
           x86_64-w64-mingw32-g++ -O2 -std=c++17 *.c *.cpp -o magiskboot_stable.exe -lz -static -lstdc++
+          
+          # 复制产物
           cp magiskboot_stable.exe ../../../../
 
       - name: 上传产物
